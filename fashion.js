@@ -35,6 +35,20 @@ const Student = mongoose.model('Student', userSchema);
 const Children = mongoose.model('Children', userSchema);
 const Product = mongoose.model('Product', fashionSchema);
 
+
+
+app.get('/fashion_home',async(req,res)=>{
+  try {
+    var fashion = await Product.find();
+    var data ={fashionData:fashion};
+    res.status(200).json(data);
+  
+  } catch (error) {
+    console.error(error);
+      res.status(500).json({ message: 'Server error' });
+  }
+  });
+
 app.post('/fashion_home',async(req,res)=> {
   try{
   const {title,description,price,image} = req.body;
@@ -50,22 +64,168 @@ app.post('/fashion_home',async(req,res)=> {
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
-})
-app.get('/fashion_home',async(req,res)=>{
-try {
-  var fashion = await Product.find();
-  var data ={fashionData:fashion};
-  res.status(200).json(data);
+});
 
-} catch (error) {
-  console.error(error);
-    res.status(500).json({ message: 'Server error' });
-}
-})
+
+// // first chanced
+// app.put('/fashion_home', async(req, res) => {
+//   console.log("Requested geted");
+//   try {
+//     const { title, description, price, image, id } = req.body;
+//     console.log("Printing req body =>", req.body);
+
+//     // Validate required fields
+//     if (!id) {
+//       return res.status(400).json({ message: 'Product ID is required' });
+//     }
+
+//     // Convert id to a valid ObjectId
+//     const objectId = mongoose.Types.ObjectId(id.replace(/ObjectId\(|\)/g, ''));
+
+//     console.log("Converted ObjectId:", objectId);
+
+//     // Check if all fields are provided
+//     if (!title || !description || !price || !image) {
+//       return res.status(400).json({ message: 'All fields are required' });
+//     }
+
+//     // Find and update product
+//     const updatedProduct = await Product.findByIdAndUpdate(
+//       { _id: objectId },
+//       {
+//         $set: {
+//           title,
+//           description,
+//           price,
+//           image,
+//         },
+//       },
+//       { new: true }
+//     );
+
+//     console.log("Printing updated Product ->", updatedProduct);
+
+//     // Handle product not found
+//     if (!updatedProduct) {
+//       return res.status(404).json({ message: 'Product not found' });
+//     }
+
+//     res.status(200).json({
+//       message: 'Product updated successfully',
+//       data: updatedProduct,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Server error', error });
+//   }
+// });
+
+
+
+
+// app.put('/fashion_home', async(req, res) => {
+//   console.log("Requested geted");
+//   try {
+//     // const id = req.params.id;
+//     // console.log(`this is extracted id -> ${id}`)
+//     const { title, description, price, image , id } = req.body;
+//     console.log("Printting req body =>",req.body);
+
+//     // Validate required fields
+//     if (!id) {
+//       return res.status(400).json({ message: 'Product ID is required' });
+//     }
+
+// console.log(id);
+
+//     // Check if all fields are provided
+//     if (!title || !description || !price || !image) {
+//       return res.status(400).json({ message: 'All fields are required' });
+//     }
+
+//     // Find and update product
+//     const updatedProduct = await Product.findByIdAndUpdate({_id:id}, {
+//       $set: {
+//         title,
+//         description,
+//         price,
+//         image,
+//       },
+//     }, { new: true });
+//     console.log("printing update Producr ->",updatedProduct);
+
+//     // Handle product not found
+//     if (!updatedProduct) {
+//       return res.status(404).json({ message: 'Product not found' });
+//     }
+
+//     res.status(200).json({
+//       message: 'Product updated successfully',
+//       data: updatedProduct,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Server error', error });
+//   }
+// }
+// );
 
 
 
 // Signup route
+
+// // second Chanced
+
+app.put('/fashion_home', async (req, res) => {
+  try {
+    const { title, description, price, image, _id: id } = req.body;
+    console.log("Received Request Body:", req.body);
+
+    // Validate required fields
+    if (!id) {
+      return res.status(400).json({ message: 'Product ID is required' });
+    }
+
+    // // Convert id to a valid ObjectId
+    // const objectId = mongoose.Types.ObjectId(id);
+    // console.log("Converted ObjectId:", objectId);
+
+    // Check if all fields are provided
+    if (!title || !description || !price || !image) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    // Find and update product
+    const updatedProduct = await Product.replaceOne(
+     {_id: id},  // Pass the objectId directly here
+      {
+        $set: {
+          title,
+          description,
+          price,
+          image,
+        },
+      },
+       // Adding runValidators to ensure validation rules are applied
+    );
+
+    console.log("Updated Product:", updatedProduct);
+
+    // Handle product not found
+    if (!updatedProduct) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.status(200).json({
+      message: 'Product updated successfully',
+      data: updatedProduct,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: 'Server error', error });
+  }
+});
+
+
+
 app.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -97,6 +257,8 @@ app.post('/signup', async (req, res) => {
     res.status(500).json({ message: 'Server error', error });
   }
 });
+
+
 // app.get('/mydata', async (req, res) =>  {
 //   try {
 //     const studentData = await Children.find();
@@ -113,6 +275,8 @@ app.post('/signup', async (req, res) => {
 
 
 // Login route
+
+
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     // Validate input
