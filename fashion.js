@@ -51,6 +51,7 @@ app.get('/fashion_home',async(req,res)=>{
 
 app.post('/fashion_home',async(req,res)=> {
   try{
+    console.log("post request accepted");
   const {title,description,price,image} = req.body;
   console.log(req.body);
   if (!title || !description || !price || !image) {
@@ -174,27 +175,22 @@ app.post('/fashion_home',async(req,res)=> {
 
 // // second Chanced
 
-app.put('/fashion_home', async (req, res) => {
+app.patch('/fashion_home', async (req, res) => {
+  console.log("Requested geted patch");
   try {
-    const { title, description, price, image, _id: id } = req.body;
+    const { title, description, price, image, id } = req.body;
     console.log("Received Request Body:", req.body);
 
     // Validate required fields
     if (!id) {
       return res.status(400).json({ message: 'Product ID is required' });
     }
-
-    // // Convert id to a valid ObjectId
-    // const objectId = mongoose.Types.ObjectId(id);
-    // console.log("Converted ObjectId:", objectId);
-
     // Check if all fields are provided
     if (!title || !description || !price || !image) {
       return res.status(400).json({ message: 'All fields are required' });
     }
-
     // Find and update product
-    const updatedProduct = await Product.replaceOne(
+    const updatedProduct = await Product.updateOne(
      {_id: id},  // Pass the objectId directly here
       {
         $set: {
@@ -204,7 +200,7 @@ app.put('/fashion_home', async (req, res) => {
           image,
         },
       },
-       // Adding runValidators to ensure validation rules are applied
+
     );
 
     console.log("Updated Product:", updatedProduct);
@@ -221,9 +217,32 @@ app.put('/fashion_home', async (req, res) => {
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ message: 'Server error', error });
+
   }
 });
 
+app.delete("/fashion_home",async(req,res)=>{
+  console.log("triggred del api ");
+         const { id } = req.body;
+         if(!id){
+      return res.status(400).json({ message: 'id is required' });}
+      try{
+        const delProduct  = await Product.deleteOne({_id:id});
+    console.log("Product deleted:", delProduct);
+    res.status(200).json({
+      message: 'Product DelEted successfully',
+      data: delProduct,
+    });
+
+    //
+
+      }catch(error){
+
+        console.error("Error:", error);
+        res.status(500).json({ message: 'Server error', error });
+    
+         }
+})
 
 
 app.post('/signup', async (req, res) => {
