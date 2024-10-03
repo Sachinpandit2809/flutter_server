@@ -305,6 +305,7 @@ app.post('/login', async (req, res) => {
     try {
       // Check if the user exists
       const user = await User.findOne({ email });
+      console.log(user);
       if (!user) {
         return res.status(400).json({ message: 'User not found' });
       }
@@ -319,7 +320,7 @@ app.post('/login', async (req, res) => {
      const token = user._id;
   
       // Return success response with token
-      res.status(200).json({ message: 'Login successful', token:`'${token}'` });
+      res.status(200).json({ message: 'Login successful', id:`${user._id}`, email:user.email });
     } catch (error) {
       res.status(500).json({ message: 'Server error', error });
     }
